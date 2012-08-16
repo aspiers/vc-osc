@@ -286,9 +286,10 @@ This is only possible if OSC is responsible for FILE's directory.")
         (shrink-window-if-larger-than-buffer)
         (error "Check-in failed"))))
     ;; Update file properties
-    ;; (vc-file-setprop
-    ;;  file 'vc-working-revision
-    ;;  (vc-parse-buffer "^\\(new\\|initial\\) revision: \\([0-9.]+\\)" 2))
+    (dolist (file files)
+      (vc-file-setprop
+       file 'vc-working-revision
+       (vc-parse-buffer "^Committed revision \\([0-9]+\\)" 1)))
     ))
 
 (defun vc-osc-find-revision (file rev buffer)
