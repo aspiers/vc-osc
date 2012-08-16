@@ -285,8 +285,7 @@ This is only possible if OSC is responsible for FILE's directory.")
       ;; Check checkin problem.
       (cond
        ((search-forward "Transaction is out of date" nil t)
-        (mapc (lambda (file) (vc-file-setprop file 'vc-state 'needs-merge))
-	      files)
+        (dolist (file files) (vc-file-setprop file 'vc-state 'needs-merge))
         (error (substitute-command-keys
                 (concat "Up-to-date check failed: "
                         "type \\[vc-next-action] to merge in changes"))))
