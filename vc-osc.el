@@ -335,6 +335,49 @@ This is only possible if OSC is responsible for FILE's directory.")
   (unless contents-done
     (vc-osc-command nil 0 file "revert")))
 
+(defun vc-osc-merge-news (file)
+  "Merge in any new changes made to FILE."
+  (message "Merging changes into %s..." file)
+  ;; (vc-file-setprop file 'vc-working-revision nil)
+  (vc-file-setprop file 'vc-checkout-time 0)
+  (vc--command nil 0 file "update")
+  ;; Analyze the merge result reported by osc, and set
+  ;; file properties accordingly.
+  (with-current-buffer (get-buffer "*vc*")
+    (goto-char (point-min))
+    ;; get new working revision
+    (if (re-search-forward
+	 "^\\(Updated to\\|At\\) revision \\([0-9]+\\)" nil t)
+	(vc-file-setprop file 'vc-working-revision (match-string 2))
+      (vc-file-setprop file 'vc-working-revision nil))
+    ;; get file status
+    (goto-char (point-min))
+    (prog1
+        (if (looking-at "At revision")
+            0 ;; there were no news; indicate success
+          (if (re-search-forward
+               (concat "^\\([ACGDU]\\)    "
+                       (regexp-quote (file-name-nondirectory file)))
+               nil t)
+              (cond
+               ;; Merge successful, we are in sync with repository now
+               ((string= (match-string 1) "U")
+                (vc-file-setprop file 'vc-state 'up-to-date)
+                (vc-file-setprop file 'vc-checkout-time
+                                 (nth 5 (file-attributes file)))
+                0);; indicate success to the caller
+               ;; Merge successful, but our own changes are still in the file
+               ((string= (match-string 1) "G")
+                (vc-file-setprop file 'vc-state 'edited)
+                0);; indicate success to the caller
+               ;; Conflicts detected!
+               (t
+                (vc-file-setprop file 'vc-state 'edited)
+                1);; signal the error to the caller
+               )
+            (pop-to-buffer "*vc*")
+            (error "Couldn't analyze osc update result")))
+      (message "Merging changes into %s...done" file))))
 
 ;;;
 ;;; History functions
