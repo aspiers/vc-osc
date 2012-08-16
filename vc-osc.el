@@ -238,7 +238,7 @@ RESULT is a list of conses (FILE . STATE) for directory DIR."
 
 (defun vc-osc-next-revision (file rev)
   (let ((newrev (1+ (string-to-number rev))))
-    ;; The "working revision" is an uneasy conceptual fit under Subversion;
+    ;; The "working revision" is an uneasy conceptual fit under osc;
     ;; we use it as the upper bound until a better idea comes along.  If the
     ;; workfile version W coincides with the tree's latest revision R, then
     ;; this check prevents a "no such revision: R+1" error.  Otherwise, it
@@ -447,7 +447,7 @@ This is only possible if OSC is responsible for FILE's directory.")
 ;;; Miscellaneous
 ;;;
 
-;; Subversion makes backups for us, so don't bother.
+;; osc makes backups for us, so don't bother.
 ;; (defun vc-osc-make-version-backups-p (file)
 ;;   "Return non-nil if version backups should be made for FILE."
 ;;  (vc-stay-local-p file 'OSC))
