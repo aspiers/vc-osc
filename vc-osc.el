@@ -192,23 +192,33 @@ RESULT is a list of conses (FILE . STATE) for directory DIR."
   (vc-exec-after
    `(vc-osc-after-dir-status (quote ,callback))))
 
+(defvar vc-osc-dir-extra-headers
+  '((project    "Project"    "Project name")
+    (package    "Package"    "Package name")
+    (path       "Path"       "Path"        )
+    (api-url    "API URL"    "API URL"     )
+    (source-url "Source URL" "Source URL"  )
+    (revision   "Revision"   "Revision"    ))
+  "Associative list mapping header symbols to names.")
+
 (defun vc-osc-dir-extra-headers (dir)
-  "Generate extra status headers for a Subversion working copy."
+  "Generate extra status headers for a osc working copy."
   (let (process-file-side-effects)
     (vc-osc-command "*vc*" 0 nil "info"))
-  (let ((repo
-	 (save-excursion
-	   (and (progn
-		  (set-buffer "*vc*")
-		  (goto-char (point-min))
-		  (re-search-forward "Repository Root: *\\(.*\\)" nil t))
-		(match-string 1)))))
-    (concat
-     (cond (repo
-	    (concat
-	     (propertize "Repository : " 'face 'font-lock-type-face)
-	     (propertize repo 'face 'font-lock-variable-name-face)))
-	   (t "")))))
+
+  (mapconcat
+   (lambda (elt)
+     (let* ((sym    (car elt))
+            (name   (cadr elt))
+            (regexp (concat "^" (caddr elt) ": *\\(.+\\)"))
+            (value  (with-current-buffer "*vc*" (vc-parse-buffer regexp 1))))
+       (cond (value
+              (format "%-11s%s %s"
+                       (propertize name  'face 'font-lock-type-face)
+                       (propertize ":"   'face 'font-lock-type-face)
+                       (propertize value 'face 'font-lock-variable-name-face)))
+             (t ""))))
+   vc-osc-dir-extra-headers "\n"))
 
 (defun vc-osc-working-revision (file)
   "OSC-specific version of `vc-working-revision'."
