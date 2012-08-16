@@ -519,9 +519,8 @@ information about FILENAME and return its status."
 
 (defun vc-osc-valid-revision-number-p (tag)
   "Return non-nil if TAG is a valid revision number."
-  (and (string-match "^[0-9]" tag)
-       (not (string-match "[^0-9]" tag))))
-
+  (or (string-match "^[1-9][0-9]*$" tag)
+      (string-match "^[0-9a-f]\\{32\\}$" tag)))
 
 (provide 'vc-osc)
 
