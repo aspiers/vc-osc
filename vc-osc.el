@@ -358,8 +358,7 @@ This is only possible if OSC is responsible for FILE's directory.")
     ;; get new working revision
     (if (re-search-forward
 	 "^\\(Updated to\\|At\\) revision \\([0-9]+\\)" nil t)
-	(vc-file-setprop file 'vc-working-revision (match-string 2))
-      (vc-file-setprop file 'vc-working-revision nil))
+	(vc-file-setprop file 'vc-working-revision (match-string 2)))
     ;; get file status
     (goto-char (point-min))
     (prog1
