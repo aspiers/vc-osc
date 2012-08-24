@@ -401,7 +401,11 @@ This is only possible if OSC is responsible for FILE's directory.")
 (defun vc-osc-print-log (files buffer &optional shortlog start-revision limit)
   "Get change log(s) associated with FILES."
   (if shortlog (error "Generating a short log is unsupported in OSC"))
-  (if limit (error "Limiting the number of log entries is unsupported in OSC"))
+  ;; FIXME: support limiting of log entries.
+  ;; vc-print-log defaults to limiting the number of entries to the value of
+  ;; `vc-log-show-limit', so we can't generate an error - just have to silently
+  ;; ignore the limit for now.
+  ;; (if limit (error "Limiting the number of log entries is unsupported in OSC"))
   (save-current-buffer
     (vc-setup-buffer buffer)
     (let ((inhibit-read-only t))
