@@ -209,8 +209,8 @@ RESULT is a list of conses (FILE . STATE) for directory DIR."
   (mapconcat
    (lambda (elt)
      (let* ((sym    (car elt))
-            (name   (cadr elt))
-            (regexp (concat "^" (caddr elt) ": *\\(.+\\)"))
+            (name   (nth 1 elt))
+            (regexp (concat "^" (nth 2 elt) ": *\\(.+\\)"))
             (value  (with-current-buffer "*vc*" (vc-parse-buffer regexp 1))))
        (cond (value
               (format "%-11s%s %s"
