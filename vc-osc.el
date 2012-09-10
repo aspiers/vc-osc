@@ -350,7 +350,7 @@ This is only possible if OSC is responsible for FILE's directory.")
   (message "Merging changes into %s..." file)
   ;; (vc-file-setprop file 'vc-working-revision nil)
   (vc-file-setprop file 'vc-checkout-time 0)
-  (vc--command nil 0 file "update")
+  (vc-osc-command nil 0 file "update")
   ;; Analyze the merge result reported by osc, and set
   ;; file properties accordingly.
   (with-current-buffer (get-buffer "*vc*")
