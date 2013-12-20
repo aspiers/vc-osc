@@ -15,7 +15,10 @@ and ensure that it gets loaded.  Then do:
 
         M-x customize-variable vc-handled-backends
 
-and add `osc` to the list of backends.
+and add `osc` to the list of backends, or achieve the same in elisp
+by adding this to your `.emacs`:
+
+        (add-to-list 'vc-handled-backends 'osc 'append)
 
 ## Support / development / feedback
 
