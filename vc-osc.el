@@ -135,22 +135,15 @@ of the given directory."
 	  (let ((parsed (vc-osc-parse-status file)))
 	    (and parsed (not (memq parsed '(ignored unregistered))))))))))
 
-(defun vc-osc-state (file &optional localp)
+(defun vc-osc-state (file)
   "OSC-specific version of `vc-state'."
   (let (process-file-side-effects)
-    (setq localp (or localp (vc-stay-local-p file 'OSC)))
     (with-temp-buffer
       (cd (file-name-directory file))
-      (vc-osc-command t 0 file "status" (if localp "-v" "-u"))
+      (vc-osc-command t 0 file "status" "-v")
       (vc-osc-parse-status file))))
 
-(defun vc-osc-state-heuristic (file)
-  "OSC-specific state heuristic."
-  (vc-osc-state file 'local))
-
-;; FIXME it would be better not to have the "remote" argument,
-;; but to distinguish the two output formats based on content.
-(defun vc-osc-after-dir-status (callback &optional remote)
+(defun vc-osc-after-dir-status (callback)
   (let ((state-map '((?A . added)
                      (?C . conflict)
                      (?M . edited)
@@ -176,21 +169,14 @@ of the given directory."
 CALLBACK is called as (CALLBACK RESULT BUFFER), where
 RESULT is a list of conses (FILE . STATE) for directory DIR."
   ;; FIXME should this rather be all the files in dir?
-  ;; FIXME: the vc-stay-local-p logic below is disabled, it ends up
-  ;; calling synchronously (vc-osc-registered DIR) => calling osc status -v DIR
-  ;; which is VERY SLOW for big trees and it makes emacs
-  ;; completely unresponsive during that time.
-  (let* ((local (and nil (vc-stay-local-p dir 'OSC)))
-	 (remote (or t (not local) (eq local 'only-file))))
-    (vc-osc-command (current-buffer) 'async nil "status"
-		    (if remote "-u"))
+  (vc-osc-command (current-buffer) 'async nil "status")
   (vc-exec-after
-     `(vc-osc-after-dir-status (quote ,callback) ,remote))))
+     `(vc-osc-after-dir-status ',callback)))
 
 (defun vc-osc-dir-status-files (dir files default-state callback)
   (apply 'vc-osc-command (current-buffer) 'async nil "status" files)
   (vc-exec-after
-   `(vc-osc-after-dir-status (quote ,callback))))
+   `(vc-osc-after-dir-status ',callback)))
 
 (defvar vc-osc-dir-extra-headers
   '((project    "Project"    "Project name")
@@ -431,7 +417,6 @@ This is only possible if OSC is responsible for FILE's directory.")
        (setq oldvers nil))
   (let* ((switches nil)
          (async (and (not vc-disable-async-diff)
-                     (vc-stay-local-p files 'OSC)
                      (or oldvers newvers)))) ; Osc diffs those locally.
       (apply 'vc-osc-command buffer
 	     (if async 'async 0)
