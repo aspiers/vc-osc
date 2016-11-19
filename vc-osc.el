@@ -400,7 +400,7 @@ This is only possible if OSC is responsible for FILE's directory.")
       (apply 'vc-osc-command buffer 0 nil "log"
              (list (if start-revision (format "-r%s" start-revision) nil))))))
 
-(defun vc-osc-diff (files &optional oldvers newvers buffer)
+(defun vc-osc-diff (files &optional oldvers newvers buffer async)
   "Get a difference report using OSC between two revisions of fileset FILES."
   (and oldvers
        (not newvers)
@@ -415,9 +415,7 @@ This is only possible if OSC is responsible for FILE's directory.")
        ;; has a different revision, we fetch the lot, which is
        ;; obviously sub-optimal.
        (setq oldvers nil))
-  (let* ((switches nil)
-         (async (and (not vc-disable-async-diff)
-                     (or oldvers newvers)))) ; Osc diffs those locally.
+  (let* ((switches nil))
       (apply 'vc-osc-command buffer
 	     (if async 'async 0)
 	     files "diff"
