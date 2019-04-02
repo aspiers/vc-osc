@@ -259,9 +259,9 @@ to the OSC command."
   "Return non-nil if FILE could be registered in OSC.
 This is only possible if OSC is responsible for FILE's directory.")
 
-(defun vc-osc-checkin (files rev comment)
+(defun vc-osc-checkin (files comment &optional _rev)
   "OSC-specific version of `vc-backend-checkin'."
-  (if rev (error "Committing to a specific revision is unsupported in OSC"))
+  (if _rev (error "Committing to a specific revision is unsupported in OSC"))
   (let ((status (apply
                  'vc-osc-command nil 1 files "ci"
                  (nconc (list "-m" comment) (vc-switches 'OSC 'checkin)))))
